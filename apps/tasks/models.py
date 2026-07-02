@@ -48,4 +48,6 @@ class Task(models.Model):
         User,
         on_delete=models.PROTECT,
         related_name="assigned_tasks",
+        blank=True,
+        null=True,
     )
