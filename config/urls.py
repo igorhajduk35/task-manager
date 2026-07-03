@@ -20,5 +20,6 @@ from apps.tasks import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('tasks/', views.TaskView)
+    path('tasks/', views.TaskView),
+    path('tasks/<int:id>', views.GetTaskById)
 ]
