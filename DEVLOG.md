@@ -45,3 +45,22 @@
 - How awesome the register Model option is and how much time it saves and how easy it is!
 - The general purpose of views.py
 - How ORM makes it easy to talk with database
+
+# 3.07.2026
+
+## Done
+- Created /tasks/<int:id> GET endpoint to get task by id
+- Organized code
+
+## Learned
+- Difference between JsonResponse and HttpResponse
+- get_object_or_404 function
+
+# 5.07.2026
+
+## Done
+- Created /tasks POST endpoint to add tasks
+- wrote validation for CreateTask function
+
+## Learned
+- Learned different HTTP statuses and how to handle errors
