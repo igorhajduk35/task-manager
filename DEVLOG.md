@@ -64,3 +64,15 @@
 
 ## Learned
 - Learned different HTTP statuses and how to handle errors
+
+# 7.07.2026
+
+## Done
+- Created first serializer for Task model
+- Improved functions and names
+- implemented an OOP approach
+
+
+## Learned
+- I noticed I started writing the commands from memory; ./.venv/Scripts/activate.ps1, python manage.py runserver, git clone etc.
+- How serializers work and how to create and use them
