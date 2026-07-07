@@ -3,12 +3,14 @@ from .models import Task
 from django.shortcuts import get_object_or_404
 import json
 from datetime import datetime
-from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from .serializer import TaskSerializer
 
 
 
-def TaskToJson(task):
+def task_to_dict(task : Task) -> dict:
     assigned_to = None
 
     if task.assigned_to is not None:
@@ -29,102 +31,135 @@ def TaskToJson(task):
 
 
 
-def TaskFieldsEmpty(task):
-    ...
-
-
-@csrf_exempt
-def TaskView(request):
-    if request.method == "GET": return GetTasks(request)
-
-    elif request.method == "POST": return CreateTask(request)
-
-    return JsonResponse(
-        {"error": "Method not allowed"},
-        status=405 # Method not allowed
-    )
+# def validate_fields(task : dict) -> bool:
+#     if not task["title"] or \
+#             not task["status"] or \
+#             not task["priority"] or \
+#             not task["due_date"]:
+#         return False
+#     return True
 
 
 
-def GetTasks(request):
-    all_tasks = Task.objects.all()
+class TasksView(APIView):
+    def get(self, request):
+        return get_tasks(request)
 
-    json_response = []
-
-    for task in all_tasks:
-        json_response.append(TaskToJson(task))
-
-    return JsonResponse(json_response, safe=False)
+    def post(self, request):
+        return create_task(request)
 
 
 
-def GetTaskById(request, id):
+class TaskDetailView(APIView):
+    def get(self, request, id):
+        return get_task_by_id(request, id)
+
+
+
+# def get_tasks(request):
+#     tasks = Task.objects.all()
+
+#     response = []
+
+#     for task in tasks:
+#         response.append(task_to_dict(task))
+
+#     return JsonResponse(response, safe=False)
+
+
+
+def get_tasks(request):
+    tasks = Task.objects.all()
+
+    serializer = TaskSerializer(tasks, many=True)
+
+    return JsonResponse(serializer.data, safe=False)
+
+
+
+def get_task_by_id(request, id):
     task = get_object_or_404(Task, id=id)
 
-    return JsonResponse(TaskToJson(task))
+    return JsonResponse(task_to_dict(task))
 
 
 
-def CreateTask(request):
-    try:
-        body = request.body
+# def create_task(request):
+#     try:
+#         body = request.body
         
-        body_parsed = json.loads(body)
+#         body_parsed = json.loads(body)
 
-        created_by_user = User.objects.get(id=1)
+#         created_by_user = User.objects.get(id=1)
 
-        assigned_to_user = None
+#         assigned_to_user = None
 
-        if body_parsed["assigned_to"] is not None:
-            assigned_to_user = User.objects.get(id=body_parsed["assigned_to"])
+#         if body_parsed["assigned_to"] is not None:
+#             assigned_to_user = User.objects.get(id=body_parsed["assigned_to"])
 
 
-        if not body_parsed["title"] or \
-                not body_parsed["status"] or \
-                not body_parsed["priority"] or \
-                not body_parsed["due_date"]:
-            return JsonResponse(
-                {"error": "Empty form data"},
-                status=400 # Bad request
-            )
+#         if not validate_fields(body_parsed):
+#             return JsonResponse(
+#                 {"error": "Empty form data"},
+#                 status=400 # Bad request
+#             )
         
-        elif body_parsed["status"].lower() not in ["todo", "in_progress", "completed", "abandoned"] or \
-                body_parsed["priority"].lower() not in ["low", "high", "average"]:
-            return JsonResponse(
-                {"error": "Choice not allowed"},
-                status=400 # Bad request
-            )
+#         elif body_parsed["status"].lower() not in ["todo", "in_progress", "completed", "abandoned"] or \
+#                 body_parsed["priority"].lower() not in ["low", "high", "average"]:
+#             return JsonResponse(
+#                 {"error": "Choice not allowed"},
+#                 status=400 # Bad request
+#             )
 
 
-        new_task = Task.objects.create(
-            title=body_parsed["title"],
-            description=body_parsed["description"],
-            status=body_parsed["status"].upper(),
-            priority=body_parsed["priority"].upper(),
-            due_date=datetime.fromisoformat(body_parsed["due_date"]),
-            created_by=created_by_user,
-            assigned_to=assigned_to_user
-        )
+#         new_task = Task.objects.create(
+#             title=body_parsed["title"],
+#             description=body_parsed["description"],
+#             status=body_parsed["status"].upper(),
+#             priority=body_parsed["priority"].upper(),
+#             due_date=datetime.fromisoformat(body_parsed["due_date"]),
+#             created_by=created_by_user,
+#             assigned_to=assigned_to_user
+#         )
 
-        return JsonResponse(
-            TaskToJson(new_task),
+#         return JsonResponse(
+#             task_to_dict(new_task),
+#             status=201 # Created
+#         )
+    
+#     except KeyError:
+#         return JsonResponse(
+#             {"error": "Field missing"},
+#             status=400 # Bad request
+#         )
+    
+#     except ValueError:
+#         return JsonResponse(
+#             {"error": "Field (probably due_date) wrong type"},
+#             status=400 # Bad request
+#         )
+    
+#     except User.DoesNotExist:
+#         return JsonResponse(
+#             {"error": "User not found"},
+#             status=400 # Bad request
+#         )
+    
+
+
+def create_task(request):
+
+    serializer = TaskSerializer(data=request.data)
+
+    if serializer.is_valid():
+        serializer.save()
+
+        return Response(
+            serializer.data,
             status=201 # Created
         )
     
-    except KeyError:
-        return JsonResponse(
-            {"error": "Field missing"},
-            status=400 # Bad request
-        )
-    
-    except ValueError:
-        return JsonResponse(
-            {"error": "Field (probably due_date) wrong type"},
-            status=400 # Bad request
-        )
-    
-    except User.DoesNotExist:
-        return JsonResponse(
-            {"error": "User not found"},
-            status=400 # Bad request
-        )
+    return Response(
+        serializer.errors,
+        status=400 # Bad request
+    )

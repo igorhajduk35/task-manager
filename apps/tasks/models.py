@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 # Create your models here.
 
 STATUS_CHOICES = {
+    # baza przewiduje : frontend wysle
     "TODO": "Todo",
     "IN_PROGRESS": "In progress",
     "COMPLETED": "Completed",
