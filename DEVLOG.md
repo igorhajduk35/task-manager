@@ -76,3 +76,11 @@
 ## Learned
 - I noticed I started writing the commands from memory; ./.venv/Scripts/activate.ps1, python manage.py runserver, git clone etc.
 - How serializers work and how to create and use them
+
+# 8.07.2026
+
+## Done
+- First steps towards understanding Generic Views (GenericAPIView)
+
+## Learned
+- What GenericAPIView is and how to use it
