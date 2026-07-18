@@ -21,5 +21,5 @@ from apps.tasks import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('tasks/', views.TasksView.as_view()),
-    path('tasks/<int:id>', views.TaskDetailView.as_view())
+    path('tasks/<int:pk>', views.TaskDetailView.as_view())
 ]
