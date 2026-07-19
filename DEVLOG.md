@@ -84,3 +84,15 @@
 
 ## Learned
 - What GenericAPIView is and how to use it
+
+
+# 19.07.2026
+
+## Done
+- Used RetrieveUpdateDestroyAPIView with ListCreateAPIView
+- ModelViewSet in action
+
+## Learned
+- What PUT and PATCH is
+- How to read source code of DRF to understand what is going on behind it.
+- How DRF offers flexibility in writing your own classes that inherit from other mixins and generics.
