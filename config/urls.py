@@ -17,9 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from apps.tasks import views
+from rest_framework.routers import DefaultRouter
+from apps.tasks.views import TaskViewSet
 
-urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('tasks/', views.TasksView.as_view()),
-    path('tasks/<int:pk>', views.TaskDetailView.as_view())
-]
+router = DefaultRouter()
+
+router.register("tasks", TaskViewSet)
+
+urlpatterns = router.urls
