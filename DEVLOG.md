@@ -96,3 +96,11 @@
 - What PUT and PATCH is
 - How to read source code of DRF to understand what is going on behind it.
 - How DRF offers flexibility in writing your own classes that inherit from other mixins and generics.
+
+# 22.07.2026
+
+## Done
+- Applied filter_backends to TaskViewSet
+
+## Learned
+- How to use filters in DRF
