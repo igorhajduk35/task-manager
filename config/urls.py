@@ -24,4 +24,8 @@ router = DefaultRouter()
 
 router.register("tasks", TaskViewSet)
 
-urlpatterns = router.urls
+urlpatterns = [
+    path("admin/", admin.site.urls)
+]
+
+urlpatterns += router.urls

@@ -3,13 +3,22 @@ from django.contrib.auth.models import User
 from rest_framework import viewsets
 from .serializers import TaskSerializer
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters
+from rest_framework import filters, pagination
+
+
+
+class TaskPagination(pagination.PageNumberPagination):
+    page_size = 5
+    page_size_query_param = 'page_size'
+    max_page_size = 10
 
 
 
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
+    pagination_class = TaskPagination
+
     filter_backends = [
         DjangoFilterBackend,
         filters.SearchFilter,
@@ -34,4 +43,4 @@ class TaskViewSet(viewsets.ModelViewSet):
     ]
 
     def perform_create(self, serializer):
-        serializer.save(created_by=User.objects.get(id=1))
+        serializer.save(created_by=self.request.user)
