@@ -104,3 +104,11 @@
 
 ## Learned
 - How to use filters in DRF
+
+# 6.08.2026
+
+## Done
+- Created permissions.py file where I can specify permissions for users in my views
+
+## Learned
+- The difference between Authentication and Permissions
