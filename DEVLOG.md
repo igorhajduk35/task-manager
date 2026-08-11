@@ -105,10 +105,20 @@
 ## Learned
 - How to use filters in DRF
 
-# 6.08.2026
+# 7.08.2026
 
 ## Done
 - Created permissions.py file where I can specify permissions for users in my views
+- Applied basic permissions
 
 ## Learned
 - The difference between Authentication and Permissions
+
+# 11.08.2026
+
+## Done
+- Updated permissions using get_permissions()
+- Used Q for filtering by many fields
+
+## Learned
+- Difference between get_permissions() and permission_classes
