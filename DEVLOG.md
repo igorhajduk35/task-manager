@@ -122,3 +122,13 @@
 
 ## Learned
 - Difference between get_permissions() and permission_classes
+
+# 16.08.2026
+
+## Done
+- Tested permissions and authorization (Tested what tasks were visible to which users, whether they should be visible, patchable, deleteable or createable)
+- Finished all basic CRUD tests.
+
+## Learned
+- Basic Auth with Postman
+- How to write python tests and use different asserts.
