@@ -3,11 +3,13 @@ from django.contrib.auth.models import User
 from rest_framework import viewsets
 from .serializers import TaskSerializer
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, pagination
+from rest_framework import filters
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated
+from .permissions import IsTaskCreator
+from django.db.models import Q
 
-
-
-class TaskPagination(pagination.PageNumberPagination):
+class TaskPagination(PageNumberPagination):
     page_size = 5
     page_size_query_param = 'page_size'
     max_page_size = 10
@@ -42,5 +44,22 @@ class TaskViewSet(viewsets.ModelViewSet):
         "priority"
     ]
 
+
+    def get_queryset(self):
+        user = self.request.user
+
+        return Task.objects.filter(
+            Q(created_by=user) | Q(assigned_to=user)
+        )
+
+
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+
+
+    # get_permissions() creates objects, whereas permission_classes stores classes
+    def get_permissions(self):
+        if self.action in ["list", "retrieve", "create"]:
+            return [IsAuthenticated()]
+
+        return [IsAuthenticated(), IsTaskCreator()]
