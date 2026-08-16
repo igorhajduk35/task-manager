@@ -132,3 +132,4 @@
 ## Learned
 - Basic Auth with Postman
 - How to write python tests and use different asserts.
+- Better understanding on why are we using tests
