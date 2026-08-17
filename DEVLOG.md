@@ -133,3 +133,14 @@
 - Basic Auth with Postman
 - How to write python tests and use different asserts.
 - Better understanding on why are we using tests
+
+# 17.08.2026
+
+## Done
+- Added more tests
+- Added .env file to protect secret_key and other vulnerable information
+- installed JWT, drf_spectacular
+
+
+## Learned
+- How to hide vulnerable information using dotenv
