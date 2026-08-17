@@ -1,5 +1,4 @@
 from .models import Task
-from django.contrib.auth.models import User
 from rest_framework import viewsets
 from .serializers import TaskSerializer
 from django_filters.rest_framework import DjangoFilterBackend
@@ -19,7 +18,6 @@ class TaskPagination(PageNumberPagination):
 
 
 class TaskViewSet(viewsets.ModelViewSet):
-    queryset = Task.objects.all()
     serializer_class = TaskSerializer
     pagination_class = TaskPagination
 

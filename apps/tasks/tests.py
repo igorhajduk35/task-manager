@@ -275,7 +275,7 @@ class TaskAPITestCase(APITestCase):
     def test_order_tasks_by_date_created_descending(self):
         self.client.force_authenticate(user=self.userA)
         response = self.client.get("/tasks/?ordering=-date_created")
-        
+
         task_ids = [task["id"] for task in response.data["results"]]
 
         self.assertEqual(response.status_code, 200)
@@ -366,3 +366,32 @@ class TaskAPITestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data["results"]), 3)
         self.assertEqual(response.data["count"], 7)
+
+
+    def test_user_can_retrieve_accessible_task(self):
+        self.client.force_authenticate(user=self.userA)
+        response = self.client.get(f"/tasks/{self.taskA.id}/")
+
+        self.assertEqual(response.status_code, 200)
+
+        
+    def test_user_cannot_retrieve_inaccessible_task(self):
+        self.client.force_authenticate(user=self.userA)
+        response = self.client.get(f"/tasks/{self.taskB.id}/")
+
+        self.assertEqual(response.status_code, 404)
+
+
+    def test_user_cannot_change_task_creator(self):
+        self.client.force_authenticate(user=self.userA)
+
+        response = self.client.patch(
+            f"/tasks/{self.taskA.id}/",
+            {
+                "created_by": self.userB.id,
+            },
+            format="json"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["created_by"], self.userA.id)
