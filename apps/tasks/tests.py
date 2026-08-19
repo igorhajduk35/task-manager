@@ -1,7 +1,7 @@
 from rest_framework.test import APITestCase
 from django.contrib.auth.models import User
 from apps.tasks.models import Task
-# from django.db.models import Case, When, IntegerField
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 class TaskAPITestCase(APITestCase):
@@ -42,7 +42,7 @@ class TaskAPITestCase(APITestCase):
     def test_unauthenticated_get_tasks(self):
         response = self.client.get("/tasks/")
 
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, 403)
 
 
     def test_authenticated_get_tasks(self):
@@ -395,3 +395,138 @@ class TaskAPITestCase(APITestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["created_by"], self.userA.id)
+
+
+    def test_jwt_authentication(self):
+        refresh = RefreshToken.for_user(self.userA)
+        access_token = str(refresh.access_token)
+
+        self.client.credentials(
+            HTTP_AUTHORIZATION=f"Bearer {access_token}"
+        )
+
+        response = self.client.get("/tasks/")
+
+        self.assertEqual(response.status_code, 200)
+
+
+    def test_invalid_jwt_returns_401(self):
+        self.client.credentials(
+            HTTP_AUTHORIZATION="Bearer invalid-token"
+        )
+
+        response = self.client.get("/tasks/")
+
+        self.assertEqual(response.status_code, 403)
+
+
+    def test_refresh_token(self):
+        refresh = RefreshToken.for_user(self.userA)
+
+        response = self.client.post(
+            "/api/token/refresh/",
+            {
+                "refresh": str(refresh),
+            },
+            format="json"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("access", response.data)
+
+
+    def test_invalid_refresh_token_returns_401(self):
+        response = self.client.post(
+            "/api/token/refresh/",
+            {
+                "refresh": "invalid-refresh-token",
+            },
+            format="json"
+        )
+
+        self.assertEqual(response.status_code, 401)
+
+
+    def test_obtain_jwt_tokens(self):
+        response = self.client.post(
+            "/api/token/",
+            {
+                "username": "test1",
+                "password": "test1",
+            },
+            format="json"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("access", response.data)
+        self.assertIn("refresh", response.data)
+
+
+    def test_obtain_jwt_tokens_with_wrong_password(self):
+        response = self.client.post(
+            "/api/token/",
+            {
+                "username": "test1",
+                "password": "wrong-password",
+            },
+            format="json"
+        )
+
+        self.assertEqual(response.status_code, 401)
+
+
+    def test_login_and_access_tasks_with_jwt(self):
+        login_response = self.client.post(
+            "/api/token/",
+            {
+                "username": "test1",
+                "password": "test1",
+            },
+            format="json"
+        )
+
+        self.assertEqual(login_response.status_code, 200)
+
+        access_token = login_response.data["access"]
+
+        self.client.credentials(
+            HTTP_AUTHORIZATION=f"Bearer {access_token}"
+        )
+
+        response = self.client.get("/tasks/")
+
+        self.assertEqual(response.status_code, 200)
+
+        task_ids = [task["id"] for task in response.data["results"]]
+
+        self.assertIn(self.taskA.id, task_ids)
+        self.assertIn(self.taskC.id, task_ids)
+
+
+    def test_jwt_user_cannot_update_assigned_task(self):
+        login_response = self.client.post(
+            "/api/token/",
+            {
+                "username": "test2",
+                "password": "test2",
+            },
+            format="json"
+        )
+
+        self.assertEqual(login_response.status_code, 200)
+
+        access_token = login_response.data["access"]
+
+        self.client.credentials(
+            HTTP_AUTHORIZATION=f"Bearer {access_token}"
+        )
+
+        response = self.client.patch(
+            f"/tasks/{self.taskC.id}/",
+            {
+                "title": "Hacked through JWT",
+            },
+            format="json"
+        )
+
+        self.assertEqual(response.status_code, 403)
